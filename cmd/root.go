@@ -26,7 +26,7 @@ import (
 	"os"
 )
 
-var template = `Usage:{{if .Runnable}}
+var cmdTemplate = `Usage:{{if .Runnable}}
   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
   {{.CommandPath}} [COMMAND]{{end}}{{if gt (len .Aliases) 0}}
 
@@ -69,8 +69,10 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.SetUsageTemplate(template)
+	rootCmd.SetUsageTemplate(cmdTemplate)
 	rootCmd.SetHelpCommand(&cobra.Command{
 		Hidden: true,
 	})
+	rootCmd.Flags().Bool("help", false, "显示帮助信息")
+	rootCmd.Flags().MarkHidden("help")
 }
