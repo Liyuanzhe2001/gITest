@@ -2,7 +2,7 @@ package util
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"gITest/data"
 	"io"
 	"net/http"
@@ -21,6 +21,23 @@ func addSchemeToURL(rawURL string) string {
 	return "http://" + rawURL
 }
 
+// 解析请求头
+func parseHeaders(req *http.Request, headers []string) ([]byte, error) {
+	for _, s := range headers {
+		if !strings.Contains(s, ":") {
+			return nil, errors.New("Headers format error")
+		}
+		split := strings.Split(s, ":")
+		req.Header.Set(split[0], split[1])
+	}
+	// 将请求头转换为json格式
+	headersJson, err := json.MarshalIndent(req.Header, "", "  ")
+	if err != nil {
+		return nil, err
+	}
+	return headersJson, nil
+}
+
 // GET 请求
 func (n *net) GET(url string, headers []string) (data.GetData, error) {
 	getData := data.GetData{}
@@ -30,25 +47,18 @@ func (n *net) GET(url string, headers []string) (data.GetData, error) {
 
 	// 创建客户端
 	client := &http.Client{}
-	// 创建一个 GET 请求
+	// 创建请求
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return getData, err
 	}
+	getData.Url = url
+
 	// 解析请求头
-	for _, s := range headers {
-		if !strings.Contains(s, ":") {
-			return getData, fmt.Errorf("headers format error")
-		}
-		split := strings.Split(s, ":")
-		req.Header.Set(split[0], split[1])
-	}
-	// 将请求头转换为json格式
-	headersJson, err := json.MarshalIndent(req.Header, "", "  ")
+	headersJson, err := parseHeaders(req, headers)
 	if err != nil {
 		return getData, err
 	}
-
 	getData.Headers = string(headersJson)
 
 	// 发送请求
@@ -64,7 +74,6 @@ func (n *net) GET(url string, headers []string) (data.GetData, error) {
 	if err != nil {
 		return getData, err
 	}
-	getData.Url = url
 
 	// 用于保存json结果
 	var data map[string]string
@@ -82,4 +91,8 @@ func (n *net) GET(url string, headers []string) (data.GetData, error) {
 	getData.Response = string(responseJson)
 
 	return getData, nil
+}
+
+func (n *net) POST(url string, headers []string, body string) {
+
 }
