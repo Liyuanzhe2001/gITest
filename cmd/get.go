@@ -31,11 +31,10 @@ var getCmd = &cobra.Command{
 		headers, err := cmd.Flags().GetStringSlice("headers")
 		if err != nil {
 			fmt.Println(err)
-			return
 		}
 
 		if (len(headers) != 0 || output != "") && url == "" {
-			fmt.Println("参数错误，请检查参数")
+			fmt.Println("Unable to find URL")
 			return
 		}
 		if url == "" {
@@ -48,6 +47,7 @@ var getCmd = &cobra.Command{
 			fmt.Println(err)
 			return
 		}
+		fmt.Println(out.Response)
 		// 需要保存结果
 		if output != "" {
 			parse, _ := template.New("out").Parse(tmpl.GetTemplate)
@@ -57,8 +57,11 @@ var getCmd = &cobra.Command{
 				return
 			}
 			err = ioutil.WriteFile(output, []byte(b.String()), 0644)
+			if err != nil {
+				fmt.Println("Error writing file:", err)
+				return
+			}
 		}
-		fmt.Println(out.Response)
 	},
 }
 
