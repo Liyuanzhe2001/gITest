@@ -6,7 +6,7 @@ package cmd
 import (
 	"fmt"
 	tmpl "gITest/template"
-	"gITest/util"
+	"gITest/utils"
 	"io/ioutil"
 	"strings"
 	"text/template"
@@ -52,7 +52,7 @@ var postCmd = &cobra.Command{
 		}
 
 		// 参数检查没问题 发送POST请求
-		out, err := util.Net.POST(url, headers, params)
+		out, err := utils.Net.POST(url, headers, params)
 		if err != nil {
 			fmt.Println(err)
 			return

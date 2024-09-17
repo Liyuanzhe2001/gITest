@@ -6,7 +6,7 @@ package cmd
 import (
 	"fmt"
 	tmpl "gITest/template"
-	"gITest/util"
+	"gITest/utils"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"strings"
@@ -42,7 +42,7 @@ var getCmd = &cobra.Command{
 			return
 		}
 		// 参数检查没问题 发送GET请求
-		out, err := util.Net.GET(url, headers)
+		out, err := utils.Net.GET(url, headers)
 		if err != nil {
 			fmt.Println(err)
 			return
