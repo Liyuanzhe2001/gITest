@@ -20,46 +20,37 @@ var getCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// 获取参数
 		url, err := cmd.Flags().GetString("url")
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		utils.Exception.ErrorHandle(err)
+
 		output, err := cmd.Flags().GetString("output")
-		if err != nil {
-			fmt.Println(err)
-		}
+		utils.Exception.ErrorHandle(err)
+
 		headers, err := cmd.Flags().GetStringSlice("headers")
-		if err != nil {
-			fmt.Println(err)
-		}
+		utils.Exception.ErrorHandle(err)
 
 		if (len(headers) != 0 || output != "") && url == "" {
-			fmt.Println("Unable to find URL")
-			return
+			utils.Exception.ErrorPrint("Unable to find URL")
 		}
 		if url == "" {
 			cmd.HelpFunc()(cmd, []string{})
 			return
 		}
+
 		// 参数检查没问题 发送GET请求
 		out, err := utils.Net.GET(url, headers)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		utils.Exception.ErrorHandle(err)
 		fmt.Println(out.Response)
+
 		// 需要保存结果
 		if output != "" {
 			parse, _ := template.New("out").Parse(tmpl.GetTemplate)
 			var b strings.Builder
 			if err := parse.Execute(&b, out); err != nil {
-				fmt.Println("Error executing template:", err)
-				return
+				utils.Exception.AddPrefixErrorHandle("Error parsing template: ", err)
 			}
 			err = ioutil.WriteFile(output, []byte(b.String()), 0644)
 			if err != nil {
-				fmt.Println("Error writing file:", err)
-				return
+				utils.Exception.AddPrefixErrorHandle("Error writing file: ", err)
 			}
 		}
 	},
